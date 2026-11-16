@@ -93,7 +93,7 @@ O servidor registra no terminal o tempo de cada chamada ao Gemini (`[gemini] pas
 
 ## Uso de IA no desenvolvimento
 
-*(Preencher: qual ferramenta de vibe coding você usou, o que revisou e o que corrigiu.)*
+Claude
 
 ## Fontes
 
