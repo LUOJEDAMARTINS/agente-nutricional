@@ -1,0 +1,30 @@
+{
+  "aviso": "Resumo parafraseado do Guia Alimentar para a População Brasileira (Ministério da Saúde). Conferir no texto oficial antes de publicar.",
+  "temas": [
+    {
+      "tema": "regra de ouro",
+      "palavras_chave": ["regra", "ouro", "in natura", "natural", "base", "alimentacao"],
+      "resumo": "Fazer de alimentos in natura ou minimamente processados a base da alimentação, e evitar alimentos ultraprocessados."
+    },
+    {
+      "tema": "arroz e feijão",
+      "palavras_chave": ["arroz", "feijao", "combinacao", "tradicional"],
+      "resumo": "O Guia valoriza a combinação tradicional de arroz com feijão como uma refeição completa e saudável, típica da alimentação brasileira."
+    },
+    {
+      "tema": "ultraprocessados",
+      "palavras_chave": ["ultraprocessado", "ultraprocessados", "refrigerante", "biscoito", "salgadinho", "embutido"],
+      "resumo": "Alimentos ultraprocessados devem ser evitados. O Guia recomenda dar preferência a alimentos in natura e a preparações culinárias feitas em casa."
+    },
+    {
+      "tema": "comer fora de casa",
+      "palavras_chave": ["fora", "restaurante", "lanchonete", "delivery"],
+      "resumo": "Ao comer fora de casa, o Guia recomenda preferir locais que servem refeições feitas na hora e evitar redes de fast food."
+    },
+    {
+      "tema": "comer com regularidade e atenção",
+      "palavras_chave": ["regularidade", "atencao", "companhia", "horario", "refeicoes"],
+      "resumo": "Comer com regularidade, com atenção e, sempre que possível, em companhia."
+    }
+  ]
+}

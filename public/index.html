@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agente Nutricional</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --texto:#1b2430; --suave:#667085; --borda:#e3e7ec; --verde:#0f766e; --user:#0f766e; --bot:#eef2f6; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#0f1720; --card:#17212c; --texto:#e8edf3; --suave:#9aa7b5; --borda:#263341; --bot:#1f2c3a; }
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--texto); height:100vh; display:flex; justify-content:center; }
+    main { width:100%; max-width:760px; display:flex; flex-direction:column; height:100%; padding:16px; gap:12px; }
+    header h1 { margin:0; font-size:1.2rem; }
+    header p { margin:4px 0 0; color:var(--suave); font-size:.85rem; }
+    #chat { flex:1; overflow-y:auto; background:var(--card); border:1px solid var(--borda); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:10px; }
+    .msg { max-width:85%; padding:10px 12px; border-radius:12px; line-height:1.45; white-space:pre-wrap; word-wrap:break-word; }
+    .user { align-self:flex-end; background:var(--user); color:#fff; }
+    .bot { align-self:flex-start; background:var(--bot); }
+    .erro { align-self:flex-start; background:#fde8e8; color:#8a1c1c; }
+    .fontes { font-size:.75rem; color:var(--suave); margin-top:6px; }
+    .sugestoes { display:flex; flex-wrap:wrap; gap:6px; }
+    .sugestoes button { border:1px solid var(--borda); background:var(--card); color:var(--texto); border-radius:999px; padding:6px 10px; font-size:.8rem; cursor:pointer; }
+    form { display:flex; gap:8px; }
+    input { flex:1; padding:12px; border-radius:10px; border:1px solid var(--borda); background:var(--card); color:var(--texto); font-size:1rem; }
+    button.enviar { padding:0 18px; border:0; border-radius:10px; background:var(--verde); color:#fff; font-size:1rem; cursor:pointer; }
+    button:disabled, input:disabled { opacity:.6; cursor:not-allowed; }
+    footer { font-size:.72rem; color:var(--suave); text-align:center; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>🥗 Agente Nutricional</h1>
+      <p>Responde com base na tabela TACO e no Guia Alimentar para a População Brasileira.</p>
+    </header>
+    <div id="chat" aria-live="polite"></div>
+    <div class="sugestoes" id="sugestoes"></div>
+    <form id="form">
+      <input id="entrada" maxlength="500" placeholder="Pergunte sobre alimentos..." autocomplete="off" />
+      <button class="enviar" id="botao" type="submit">Enviar</button>
+    </form>
+    <footer>Informação educativa, não substitui médico ou nutricionista. Respostas geradas por IA podem conter erros.</footer>
+  </main>
+  <script>
+    const chat = document.getElementById('chat');
+    const form = document.getElementById('form');
+    const entrada = document.getElementById('entrada');
+    const botao = document.getElementById('botao');
+    const historico = [];
+
+    const exemplos = [
+      'Quantas calorias tem 100 g de arroz cozido e o que o Guia Alimentar diz sobre arroz com feijão?',
+      'Qual carne tem mais proteína?',
+      'Quantas calorias tem um prato com 150 g de arroz, 100 g de feijão e 120 g de frango grelhado?',
+      'Estou com dor no peito, o que devo comer?'
+    ];
+    const sug = document.getElementById('sugestoes');
+    exemplos.forEach((t) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = t.length > 48 ? t.slice(0, 46) + '…' : t; b.title = t;
+      b.onclick = () => { entrada.value = t; form.requestSubmit(); };
+      sug.appendChild(b);
+    });
+
+    function adicionar(texto, classe, fontes) {
+      const d = document.createElement('div');
+      d.className = 'msg ' + classe;
+      d.textContent = texto; // textContent evita injeção de HTML
+      if (fontes && fontes.length) {
+        const f = document.createElement('div');
+        f.className = 'fontes';
+        f.textContent = 'Ferramentas usadas: ' + [...new Set(fontes.map((x) => x.nome))].join(', ');
+        d.appendChild(f);
+      }
+      chat.appendChild(d);
+      chat.scrollTop = chat.scrollHeight;
+      return d;
+    }
+
+    adicionar('Olá! Posso consultar a composição de alimentos (TACO), somar os nutrientes de uma refeição e citar o Guia Alimentar. Não faço diagnóstico nem dieta.', 'bot');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const texto = entrada.value.trim();
+      if (!texto) return;
+      entrada.value = '';
+      adicionar(texto, 'user');
+      entrada.disabled = botao.disabled = true;
+      const espera = adicionar('Consultando as fontes...', 'bot');
+      try {
+        const r = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mensagem: texto, historico })
+        });
+        const dados = await r.json();
+        espera.remove();
+        if (!r.ok) { adicionar(dados.erro || 'Erro inesperado.', 'erro'); }
+        else {
+          adicionar(dados.resposta, 'bot', dados.ferramentas);
+          historico.push({ role: 'user', text: texto }, { role: 'assistant', text: dados.resposta });
+        }
+      } catch (_) {
+        espera.remove();
+        adicionar('Não consegui falar com o servidor.', 'erro');
+      } finally {
+        entrada.disabled = botao.disabled = false;
+        entrada.focus();
+      }
+    });
+  </script>
+</body>
+</html>
