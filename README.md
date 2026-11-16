@@ -2,8 +2,6 @@
 
 Assistente de chat que responde dúvidas sobre alimentação consultando fontes de dados por **function calling**, em vez de depender do "achismo" do modelo.
 
-**Demo:** *(colar o link ou vídeo aqui)*
-
 ## Problema
 
 Modelos de linguagem respondem sobre nutrição com segurança, mas nem sempre com números corretos. Este projeto força o modelo a consultar fontes  e a citar de onde veio cada dado.
